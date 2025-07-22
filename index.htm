@@ -1,30 +1,125 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Assistente IA HubVascular</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
-    body { font-family: Arial, sans-serif; padding: 2rem; background: #f5f5f5; }
-    #chat-box { background: white; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    #pergunta { width: 100%; padding: 0.8rem; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; }
-    button { margin-top: 0.5rem; padding: 0.8rem 1.5rem; background: #0056b3; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    button:hover { background: #004a9b; }
-    #resposta { margin-top: 1rem; white-space: pre-wrap; background: #eef; padding: 1rem; border-radius: 5px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 2rem;
+      color: #222;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      color: #0056b3;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      font-size: 1rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      resize: vertical;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.8rem 1.5rem;
+      background-color: #0056b3;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #004a9b;
+    }
+    #resposta {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #eef;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-y: auto;
+      border-left: 5px solid #0056b3;
+    }
+    .guidelines {
+      margin-top: 2rem;
+      background: #f9f9f9;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    .guidelines h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    .guidelines ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .guidelines li::before {
+      content: "📄";
+      margin-right: 0.5rem;
+    }
   </style>
 </head>
 <body>
-  <div id="chat-box">
-    <h2>Assistente Cirúrgico com IA</h2>
-    <input id="pergunta" type="text" placeholder="Ex: Qual conduta em AAA justarrenal com artérias acessórias?">
-    <button onclick="perguntar()">Perguntar</button>
-    <div id="resposta"></div>
+  <div class="container">
+    <h1>Assistente IA – HubVascular</h1>
+    <label for="pergunta">Pergunta clínica:</label>
+    <textarea id="pergunta" placeholder="Ex: Qual conduta em AAA justarrenal com artérias acessórias?"></textarea>
+    <button onclick="perguntar()" id="btn">Perguntar</button>
+
+    <div id="resposta">A resposta aparecerá aqui.</div>
+
+    <section class="guidelines">
+      <h2>📚 Guidelines disponíveis:</h2>
+      <ul>
+        <li>ESVS 2023 – Carotid & Vertebral Disease</li>
+        <li>ESVS 2023 – Antithrombotic Therapy</li>
+        <li>ESVS 2023 – Radiation Safety</li>
+        <li>SVS 2021 – TEVAR</li>
+        <li>SVS 2018 – Varicose Veins</li>
+        <li>SVS – Popliteal Aneurysm</li>
+        <li>KDOQI 2019 – Hemodialysis Access</li>
+        <li>SBACV – AAA, TVP, Veins</li>
+        <li>SBACV/SBC 2023 – Vascular Ultrasound</li>
+        <li>Global Vascular 2019 – CLTI</li>
+        <li>ESC/EACTS 2022 – Aortic Diseases</li>
+      </ul>
+    </section>
   </div>
 
   <script>
     async function perguntar() {
-      const pergunta = document.getElementById("pergunta").value;
+      const pergunta = document.getElementById("pergunta").value.trim();
       const respostaEl = document.getElementById("resposta");
+      const btn = document.getElementById("btn");
+
+      if (!pergunta) {
+        respostaEl.innerText = "Por favor, escreva uma pergunta.";
+        return;
+      }
+
       respostaEl.innerText = "Pensando...";
+      btn.disabled = true;
+      btn.innerText = "Aguarde...";
 
       try {
         const response = await fetch("https://teste-6pgi.onrender.com/perguntar", {
@@ -37,14 +132,13 @@
 
         const data = await response.json();
 
-        if (data.resposta) {
-          respostaEl.innerText = data.resposta;
-        } else {
-          respostaEl.innerText = "Não foi possível obter uma resposta. Tente novamente.";
-        }
+        respostaEl.innerText = data.resposta || "Não foi possível obter uma resposta. Tente novamente.";
       } catch (error) {
         console.error("Erro:", error);
         respostaEl.innerText = "Erro ao se comunicar com o servidor.";
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Perguntar";
       }
     }
   </script>
